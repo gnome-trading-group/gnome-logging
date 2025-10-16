@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>group.gnometrading</groupId>
+    <artifactId>gnome-logging</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <scm>
+        <connection>scm:git:git@github.com:gnome-trading-group/gnome-logging.git</connection>
+        <developerConnection>scm:git:git@github.com:gnome-trading-group/gnome-logging.git</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
+
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub GTG Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/gnome-trading-group/gnome-logging</url>
+        </repository>
+    </distributionManagement>
+
+    <repositories>
+        <repository>
+            <id>github</id>
+            <name>Internal Projects</name>
+            <url>https://maven.pkg.github.com/gnome-trading-group/*</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>group.gnometrading</groupId>
+            <artifactId>gnome-core</artifactId>
+            <version>1.2.7</version>
+        </dependency>
+    </dependencies>
+</project>
