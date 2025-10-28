@@ -3,6 +3,9 @@ package group.gnometrading.logging;
 public enum LogMessage {
     SOCKET_CONNECTED,
     SOCKET_DISCONNECTED,
+    SOCKET_SILENCE_TIMEOUT,
+    SOCKET_RECONNECTING,
+    SOCKET_RECONNECT_FAILURE,
     FATAL_ERROR_EXITING,
     UNKNOWN_ERROR,
     DEBUG,
