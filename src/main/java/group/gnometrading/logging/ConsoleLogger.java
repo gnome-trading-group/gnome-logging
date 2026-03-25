@@ -61,6 +61,7 @@ public final class ConsoleLogger implements Logger {
     }
 
     @Override
+    @SuppressWarnings("checkstyle:RegexpSinglelineJava")
     public void logf(LogMessage msg, String format, Object... args) {
         String formatted = String.format(format, args);
         System.out.printf(DEFAULT_FORMAT + " " + formatted, clock.nanoTime(), msg.name());
