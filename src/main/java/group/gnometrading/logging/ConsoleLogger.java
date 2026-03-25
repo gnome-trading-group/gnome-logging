@@ -2,7 +2,7 @@ package group.gnometrading.logging;
 
 import org.agrona.concurrent.EpochNanoClock;
 
-public class ConsoleLogger implements Logger {
+public final class ConsoleLogger implements Logger {
 
     private static final String DEFAULT_FORMAT = "[%d] %s";
 
