@@ -18,4 +18,8 @@ public enum LogMessage {
     FATAL_ERROR_EXITING,
     UNKNOWN_ERROR,
     DEBUG,
+
+    /** OMS order rejection messages */
+    ORDER_REJECTED_EXCHANGE_CONSTRAINTS,
+    ORDER_REJECTED_RISK_CHECK,
 }
