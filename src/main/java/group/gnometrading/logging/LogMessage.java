@@ -22,4 +22,7 @@ public enum LogMessage {
     /** OMS order rejection messages */
     ORDER_REJECTED_EXCHANGE_CONSTRAINTS,
     ORDER_REJECTED_RISK_CHECK,
+
+    /** OMS execution report messages */
+    EXEC_REPORT_FOR_UNKNOWN_ORDER,
 }
