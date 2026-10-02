@@ -25,4 +25,6 @@ public enum LogMessage {
 
     /** OMS execution report messages */
     EXEC_REPORT_FOR_UNKNOWN_ORDER,
+    DUPLICATE_FILL_IGNORED,
+    INVALID_FILL_REPORT,
 }
