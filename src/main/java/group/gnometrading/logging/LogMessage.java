@@ -22,6 +22,12 @@ public enum LogMessage {
     /** OMS order rejection messages */
     ORDER_REJECTED_EXCHANGE_CONSTRAINTS,
     ORDER_REJECTED_RISK_CHECK,
+    ORDER_REJECTED_HALTED,
+
+    /** Trading ledger messages */
+    LEDGER_FAILING_HALTED,
+    LEDGER_WRITE_FAILED,
+    LEDGER_FENCED,
 
     /** OMS execution report messages */
     EXEC_REPORT_FOR_UNKNOWN_ORDER,
