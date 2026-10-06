@@ -35,6 +35,8 @@ public enum LogMessage {
             LogArg.price("price"),
             LogArg.size("size"),
             LogArg.number("policyId")),
+    /** A loss limit (or another market-time policy) breached: the strategy is halted and its orders cancelled. */
+    STRATEGY_LATCHED_LOSS_LIMIT(LogArg.number("strategy"), LogArg.number("listing"), LogArg.number("policyId")),
     /** Logged when a strategy's orders start being refused as halted, not for every order refused after that. */
     ORDER_REJECTED_HALTED(
             LogArg.number("clientOid"),
