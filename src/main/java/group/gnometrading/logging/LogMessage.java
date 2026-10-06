@@ -48,6 +48,10 @@ public enum LogMessage {
     LEDGER_WRITE_FAILED(LogArg.number("status")),
     LEDGER_FENCED(LogArg.number("status")),
 
+    /** Startup recovery messages; each halts the strategy on the listing until an operator reviews it. */
+    VENUE_ORDER_UNATTRIBUTABLE_HALTED(LogArg.number("strategy"), LogArg.number("listing")),
+    POSITION_NEEDS_REVIEW_HALTED(LogArg.number("strategy"), LogArg.number("listing")),
+
     /** OMS execution report messages */
     EXEC_REPORT_FOR_UNKNOWN_ORDER(LogArg.number("clientOid")),
     DUPLICATE_FILL_IGNORED(LogArg.number("clientOid")),
