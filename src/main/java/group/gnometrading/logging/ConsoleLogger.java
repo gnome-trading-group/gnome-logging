@@ -20,44 +20,47 @@ public final class ConsoleLogger implements Logger {
 
     @Override
     public void log(LogMessage msg, long v1) {
-        String message = DEFAULT_FORMAT + " arg1=%d";
-        System.out.printf(message, clock.nanoTime(), msg.name(), v1);
-        System.out.println();
+        print(msg, 1, v1, 0, 0, 0, 0, 0);
     }
 
     @Override
     public void log(LogMessage msg, long v1, long v2) {
-        String message = DEFAULT_FORMAT + " arg1=%d arg2=%d";
-        System.out.printf(message, clock.nanoTime(), msg.name(), v1, v2);
-        System.out.println();
+        print(msg, 2, v1, v2, 0, 0, 0, 0);
     }
 
     @Override
     public void log(LogMessage msg, long v1, long v2, long v3) {
-        String message = DEFAULT_FORMAT + " arg1=%d arg2=%d arg3=%d";
-        System.out.printf(message, clock.nanoTime(), msg.name(), v1, v2, v3);
-        System.out.println();
+        print(msg, 3, v1, v2, v3, 0, 0, 0);
     }
 
     @Override
     public void log(LogMessage msg, long v1, long v2, long v3, long v4) {
-        String message = DEFAULT_FORMAT + " arg1=%d arg2=%d arg3=%d arg4=%d";
-        System.out.printf(message, clock.nanoTime(), msg.name(), v1, v2, v3, v4);
-        System.out.println();
+        print(msg, 4, v1, v2, v3, v4, 0, 0);
     }
 
     @Override
     public void log(LogMessage msg, long v1, long v2, long v3, long v4, long v5) {
-        String message = DEFAULT_FORMAT + " arg1=%d arg2=%d arg3=%d arg4=%d arg5=%d";
-        System.out.printf(message, clock.nanoTime(), msg.name(), v1, v2, v3, v4, v5);
-        System.out.println();
+        print(msg, 5, v1, v2, v3, v4, v5, 0);
     }
 
     @Override
     public void log(LogMessage msg, long v1, long v2, long v3, long v4, long v5, long v6) {
-        String message = DEFAULT_FORMAT + " arg1=%d arg2=%d arg3=%d arg4=%d arg5=%d arg6=%d";
-        System.out.printf(message, clock.nanoTime(), msg.name(), v1, v2, v3, v4, v5, v6);
-        System.out.println();
+        print(msg, 6, v1, v2, v3, v4, v5, v6);
+    }
+
+    private void print(LogMessage msg, int count, long v1, long v2, long v3, long v4, long v5, long v6) {
+        System.out.println(format(clock.nanoTime(), msg, count, v1, v2, v3, v4, v5, v6));
+    }
+
+    static String format(long nanos, LogMessage msg, int count, long v1, long v2, long v3, long v4, long v5, long v6) {
+        final StringBuilder line =
+                new StringBuilder().append('[').append(nanos).append("] ").append(msg.name());
+        final long[] values = {v1, v2, v3, v4, v5, v6};
+        for (int i = 0; i < count; i++) {
+            line.append(' ');
+            msg.arg(i).append(line, values[i]);
+        }
+        return line.toString();
     }
 
     @Override
