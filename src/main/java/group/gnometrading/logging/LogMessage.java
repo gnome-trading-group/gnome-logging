@@ -44,6 +44,9 @@ public enum LogMessage {
             LogArg.number("listing"),
             LogArg.code("cause", "STALE_RISK", "KILLED", "LATCHED")),
 
+    /** A venue refused an order, cancel or amend; logged with logf, as the venue's reason is its own text. */
+    ORDER_REJECTED_BY_VENUE,
+
     /** Trading ledger messages */
     LEDGER_FAILING_HALTED,
     /** status -1 means no response arrived. */
