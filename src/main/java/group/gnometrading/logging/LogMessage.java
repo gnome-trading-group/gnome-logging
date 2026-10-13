@@ -14,6 +14,17 @@ public enum LogMessage {
     SOCKET_SILENCE_TIMED_OUT, // no data received for configured period
     SOCKET_RECONNECTING,
 
+    /**
+     * A market data feed missed or reordered an update: the last book is published flagged maybeBadBook and the reader
+     * reconnects for a fresh snapshot. expected and received are the venue's sequence numbers for SEQUENCE and NONCE
+     * gaps, and for BEST_PRICE the venue's best price and the book's, on the side that disagreed.
+     */
+    MARKET_DATA_GAP(
+            LogArg.number("listing"),
+            LogArg.number("expected"),
+            LogArg.number("received"),
+            LogArg.code("cause", "SEQUENCE", "NONCE", "BEST_PRICE")),
+
     /** General messages */
     FATAL_ERROR_EXITING,
     UNKNOWN_ERROR,
@@ -35,14 +46,35 @@ public enum LogMessage {
             LogArg.price("price"),
             LogArg.size("size"),
             LogArg.number("policyId")),
-    /** A loss limit (or another market-time policy) breached: the strategy is halted and its orders cancelled. */
-    STRATEGY_LATCHED_LOSS_LIMIT(LogArg.number("strategy"), LogArg.number("listing"), LogArg.number("policyId")),
+    /**
+     * A market-time policy breached, such as a loss limit or a run of venue rejects: the strategy is halted in the
+     * policy's scope and its orders there cancelled. exchange and listing are 0 when the latch covers more than one.
+     */
+    STRATEGY_LATCHED(
+            LogArg.number("strategy"),
+            LogArg.number("exchange"),
+            LogArg.number("listing"),
+            LogArg.code("cause", "MARKET_LIMIT", "REJECT_STREAK"),
+            LogArg.number("policyId")),
     /** Logged when a strategy's orders start being refused as halted, not for every order refused after that. */
     ORDER_REJECTED_HALTED(
             LogArg.number("clientOid"),
             LogArg.number("strategy"),
             LogArg.number("listing"),
-            LogArg.code("cause", "STALE_RISK", "KILLED", "LATCHED")),
+            LogArg.code("cause", "STALE_RISK", "KILLED", "LATCHED", "UNGUARDED")),
+    /**
+     * A live session lacks a required risk policy on a listing, so nothing may trade until one is added. Logged once
+     * per policy change, naming the first gap found.
+     */
+    RISK_UNGUARDED(
+            LogArg.number("strategy"),
+            LogArg.number("listing"),
+            LogArg.code(
+                    "missing",
+                    "MAX_COMMITTED_CAPITAL",
+                    "MAX_TOTAL_PNL_LOSS",
+                    "MAX_POSITION",
+                    "MAX_CONSECUTIVE_REJECTS")),
 
     /** A venue refused an order, cancel or amend; logged with logf, as the venue's reason is its own text. */
     ORDER_REJECTED_BY_VENUE,
