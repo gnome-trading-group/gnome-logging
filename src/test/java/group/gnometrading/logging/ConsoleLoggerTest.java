@@ -37,4 +37,16 @@ class ConsoleLoggerTest {
                 "[5] ORDER_REJECTED_HALTED clientOid=1 strategy=7 listing=100 cause=9",
                 ConsoleLogger.format(5, LogMessage.ORDER_REJECTED_HALTED, 4, 1, 7, 100, 9, 0, 0));
     }
+
+    @Test
+    void formattedMessageIsPrintedAsItIsEvenWithPercentSigns() {
+        assertEquals(
+                "[5] VENUE_RATE_LIMITED budget 40% of the rate; venue said: 100% full",
+                ConsoleLogger.formatf(
+                        5,
+                        LogMessage.VENUE_RATE_LIMITED,
+                        "budget %.0f%% of the rate; venue said: %s",
+                        40.0,
+                        "100% full"));
+    }
 }

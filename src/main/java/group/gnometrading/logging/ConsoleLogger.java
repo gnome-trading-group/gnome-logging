@@ -66,8 +66,16 @@ public final class ConsoleLogger implements Logger {
     @Override
     @SuppressWarnings("checkstyle:RegexpSinglelineJava")
     public void logf(LogMessage msg, String format, Object... args) {
-        String formatted = String.format(format, args);
-        System.out.printf(DEFAULT_FORMAT + " " + formatted, clock.nanoTime(), msg.name());
-        System.out.println();
+        System.out.println(formatf(clock.nanoTime(), msg, format, args));
+    }
+
+    /**
+     * The line {@link #logf} prints. The message is formatted once and then printed as it is: used as a format again,
+     * a {@code %} in it (a venue's error text, say) would be read as a specifier and throw. Allocates, as logf's free
+     * text always has.
+     */
+    @SuppressWarnings("checkstyle:RegexpSinglelineJava")
+    static String formatf(long nanos, LogMessage msg, String format, Object... args) {
+        return String.format(DEFAULT_FORMAT, nanos, msg.name()) + " " + String.format(format, args);
     }
 }
