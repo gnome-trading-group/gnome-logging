@@ -47,6 +47,17 @@ public enum LogMessage {
     /** A venue refused an order, cancel or amend; logged with logf, as the venue's reason is its own text. */
     ORDER_REJECTED_BY_VENUE,
 
+    /**
+     * Rate limiting of a venue account's requests, each logged with logf as the venue and bucket are text, and once
+     * as each starts or ends rather than for every request. This one: the venue answered 429, so requests are held
+     * for its penalty and this process's budget is lowered.
+     */
+    VENUE_RATE_LIMITED,
+    /** The account's budget ran out: new orders and amends are being refused locally, without being sent. */
+    RATE_LIMIT_THROTTLING,
+    /** Requests are being sent again; logged with how many were refused meanwhile. */
+    RATE_LIMIT_RECOVERED,
+
     /** Trading ledger messages */
     LEDGER_FAILING_HALTED,
     /** status -1 means no response arrived. */
