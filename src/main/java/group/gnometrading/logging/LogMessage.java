@@ -37,7 +37,7 @@ public enum LogMessage {
             LogArg.side("side"),
             LogArg.price("price"),
             LogArg.size("size"),
-            LogArg.code("rule", "LOT_SIZE", "MIN_SIZE", "TICK", "MIN_NOTIONAL")),
+            LogArg.code("rule", "LOT_SIZE", "MIN_SIZE", "TICK", "MIN_NOTIONAL", "NO_MARKET_PRICE")),
     /** policyId 0 is a limit with no registry policy: the OMS's own order book being full, or a backtest's limits. */
     ORDER_REJECTED_RISK_CHECK(
             LogArg.number("clientOid"),
