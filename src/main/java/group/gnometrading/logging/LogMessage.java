@@ -29,6 +29,8 @@ public enum LogMessage {
     FATAL_ERROR_EXITING,
     UNKNOWN_ERROR,
     DEBUG,
+    /** The async logger's ring was full, so this many lines were dropped rather than make their threads wait. */
+    LOG_RECORDS_DROPPED(LogArg.number("count")),
 
     /** OMS order rejection messages */
     ORDER_REJECTED_EXCHANGE_CONSTRAINTS(

@@ -1,21 +1,37 @@
 package group.gnometrading.logging;
 
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
+import java.util.concurrent.locks.ReentrantLock;
+import org.agrona.ExpandableArrayBuffer;
 import org.agrona.concurrent.EpochNanoClock;
 
+/**
+ * Writes each line to stdout on the calling thread, in the order it was logged: for backtests and tests, where a
+ * line should land beside the simulated events around it. A live process uses {@link AsyncLogger}, which keeps the
+ * write off the threads that log.
+ */
 public final class ConsoleLogger implements Logger {
 
-    private static final String DEFAULT_FORMAT = "[%d] %s";
-
     private final EpochNanoClock clock;
+    private final PrintStream out;
+    private final ExpandableArrayBuffer line = new ExpandableArrayBuffer(512);
+    private final long[] values = new long[LogFormatter.MAX_ARGS];
+    private final ReentrantLock lock = new ReentrantLock();
 
+    @SuppressWarnings("checkstyle:RegexpSinglelineJava")
     public ConsoleLogger(EpochNanoClock clock) {
+        this(clock, System.out);
+    }
+
+    ConsoleLogger(EpochNanoClock clock, PrintStream out) {
         this.clock = clock;
+        this.out = out;
     }
 
     @Override
     public void log(LogMessage msg) {
-        System.out.printf(DEFAULT_FORMAT, clock.nanoTime(), msg.name());
-        System.out.println();
+        print(msg, 0, 0, 0, 0, 0, 0, 0);
     }
 
     @Override
@@ -49,33 +65,35 @@ public final class ConsoleLogger implements Logger {
     }
 
     private void print(LogMessage msg, int count, long v1, long v2, long v3, long v4, long v5, long v6) {
-        System.out.println(format(clock.nanoTime(), msg, count, v1, v2, v3, v4, v5, v6));
-    }
-
-    static String format(long nanos, LogMessage msg, int count, long v1, long v2, long v3, long v4, long v5, long v6) {
-        final StringBuilder line =
-                new StringBuilder().append('[').append(nanos).append("] ").append(msg.name());
-        final long[] values = {v1, v2, v3, v4, v5, v6};
-        for (int i = 0; i < count; i++) {
-            line.append(' ');
-            msg.arg(i).append(line, values[i]);
+        lock.lock();
+        try {
+            values[0] = v1;
+            values[1] = v2;
+            values[2] = v3;
+            values[3] = v4;
+            values[4] = v5;
+            values[5] = v6;
+            final int length = LogFormatter.putLine(line, 0, clock.nanoTime(), msg, count, values);
+            out.write(line.byteArray(), 0, length);
+        } finally {
+            lock.unlock();
         }
-        return line.toString();
-    }
-
-    @Override
-    @SuppressWarnings("checkstyle:RegexpSinglelineJava")
-    public void logf(LogMessage msg, String format, Object... args) {
-        System.out.println(formatf(clock.nanoTime(), msg, format, args));
     }
 
     /**
-     * The line {@link #logf} prints. The message is formatted once and then printed as it is: used as a format again,
-     * a {@code %} in it (a venue's error text, say) would be read as a specifier and throw. Allocates, as logf's free
-     * text always has.
+     * The message is formatted once and then written as it is: used as a format again, a {@code %} in it (a venue's
+     * error text, say) would be read as a specifier and throw. Allocates, as logf's free text always has.
      */
+    @Override
     @SuppressWarnings("checkstyle:RegexpSinglelineJava")
-    static String formatf(long nanos, LogMessage msg, String format, Object... args) {
-        return String.format(DEFAULT_FORMAT, nanos, msg.name()) + " " + String.format(format, args);
+    public void logf(LogMessage msg, String format, Object... args) {
+        final byte[] text = String.format(format, args).getBytes(StandardCharsets.UTF_8);
+        lock.lock();
+        try {
+            final int length = LogFormatter.putTextLine(line, 0, clock.nanoTime(), msg, text, text.length);
+            out.write(line.byteArray(), 0, length);
+        } finally {
+            lock.unlock();
+        }
     }
 }

@@ -2,51 +2,34 @@ package group.gnometrading.logging;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.Test;
 
 class ConsoleLoggerTest {
 
     @Test
-    void namesEachArgumentAndPrintsPricesSizesSidesAndCodesReadably() {
-        final String line = ConsoleLogger.format(
-                5, LogMessage.ORDER_REJECTED_EXCHANGE_CONSTRAINTS, 6, 814, 100, 'B', 505_000_000L, 10_000_000, 2);
-        assertEquals(
-                "[5] ORDER_REJECTED_EXCHANGE_CONSTRAINTS clientOid=814 listing=100 side=BID price=0.505 size=10"
-                        + " rule=TICK",
-                line);
-    }
+    void writesEachLineAsItIsLogged() {
+        final ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        final ConsoleLogger logger = new ConsoleLogger(() -> 5, new PrintStream(bytes, true, StandardCharsets.UTF_8));
 
-    @Test
-    void aMarketOrdersMissingPriceReadsAsNull() {
-        final String line =
-                ConsoleLogger.format(5, LogMessage.ORDER_REJECTED_RISK_CHECK, 6, 1, 100, 'A', Long.MIN_VALUE, 1, 37);
-        assertEquals(
-                "[5] ORDER_REJECTED_RISK_CHECK clientOid=1 listing=100 side=ASK price=null size=0.000001"
-                        + " policyId=37",
-                line);
-    }
+        logger.log(LogMessage.SOCKET_CONNECTED);
+        logger.log(LogMessage.LEDGER_WRITE_FAILED, 503);
 
-    @Test
-    void aMessageWithoutNamesFallsBackToPositions() {
-        assertEquals("[5] DEBUG arg1=7 arg2=8", ConsoleLogger.format(5, LogMessage.DEBUG, 2, 7, 8, 0, 0, 0, 0));
-    }
-
-    @Test
-    void anUnknownCodePrintsItsNumber() {
         assertEquals(
-                "[5] ORDER_REJECTED_HALTED clientOid=1 strategy=7 listing=100 cause=9",
-                ConsoleLogger.format(5, LogMessage.ORDER_REJECTED_HALTED, 4, 1, 7, 100, 9, 0, 0));
+                "[5] SOCKET_CONNECTED\n[5] LEDGER_WRITE_FAILED status=503\n", bytes.toString(StandardCharsets.UTF_8));
     }
 
     @Test
     void formattedMessageIsPrintedAsItIsEvenWithPercentSigns() {
+        final ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        final ConsoleLogger logger = new ConsoleLogger(() -> 5, new PrintStream(bytes, true, StandardCharsets.UTF_8));
+
+        logger.logf(LogMessage.VENUE_RATE_LIMITED, "budget %.0f%% of the rate; venue said: %s", 40.0, "100% full");
+
         assertEquals(
-                "[5] VENUE_RATE_LIMITED budget 40% of the rate; venue said: 100% full",
-                ConsoleLogger.formatf(
-                        5,
-                        LogMessage.VENUE_RATE_LIMITED,
-                        "budget %.0f%% of the rate; venue said: %s",
-                        40.0,
-                        "100% full"));
+                "[5] VENUE_RATE_LIMITED budget 40% of the rate; venue said: 100% full\n",
+                bytes.toString(StandardCharsets.UTF_8));
     }
 }

@@ -1,6 +1,7 @@
 package group.gnometrading.logging;
 
-import java.math.BigDecimal;
+import group.gnometrading.utils.FixedPointAscii;
+import org.agrona.MutableDirectBuffer;
 
 /**
  * How one argument of a {@link LogMessage} reads in a log line. Callers always pass plain longs, so logging costs
@@ -9,8 +10,8 @@ import java.math.BigDecimal;
 public final class LogArg {
 
     // Fixed point as the trading schemas define it: 1e9 per dollar, 1e6 per unit.
-    private static final int PRICE_DECIMALS = 9;
-    private static final int SIZE_DECIMALS = 6;
+    private static final long PRICE_SCALE = 1_000_000_000L;
+    private static final long SIZE_SCALE = 1_000_000L;
     // The schemas' null for a 64-bit field, e.g. the price of a market order.
     private static final long NULL_VALUE = Long.MIN_VALUE;
 
@@ -60,32 +61,31 @@ public final class LogArg {
         return name;
     }
 
-    void append(final StringBuilder out, final long value) {
-        out.append(name).append('=');
+    /** Writes {@code name=value} at {@code index}, without allocating, and returns the index after it. */
+    int append(final MutableDirectBuffer out, final int index, final long value) {
+        int at = index + out.putStringWithoutLengthAscii(index, name);
+        out.putByte(at++, (byte) '=');
         if (kind != Kind.NUMBER && kind != Kind.CODE && value == NULL_VALUE) {
-            out.append("null");
-            return;
+            return at + out.putStringWithoutLengthAscii(at, "null");
         }
-        switch (kind) {
-            case PRICE -> out.append(decimal(value, PRICE_DECIMALS));
-            case SIZE -> out.append(decimal(value, SIZE_DECIMALS));
-            case SIDE -> out.append(sideName(value));
-            case CODE -> out.append(value >= 0 && value < codes.length ? codes[(int) value] : Long.toString(value));
-            default -> out.append(value);
-        }
+        return switch (kind) {
+            case PRICE -> at + FixedPointAscii.put(out, at, value, PRICE_SCALE);
+            case SIZE -> at + FixedPointAscii.put(out, at, value, SIZE_SCALE);
+            case SIDE -> putSide(out, at, value);
+            case CODE -> value >= 0 && value < codes.length
+                    ? at + out.putStringWithoutLengthAscii(at, codes[(int) value])
+                    : at + out.putLongAscii(at, value);
+            default -> at + out.putLongAscii(at, value);
+        };
     }
 
-    private static String decimal(final long value, final int decimals) {
-        return BigDecimal.valueOf(value, decimals).stripTrailingZeros().toPlainString();
-    }
-
-    private static String sideName(final long value) {
+    private static int putSide(final MutableDirectBuffer out, final int index, final long value) {
         if (value == 'B') {
-            return "BID";
+            return index + out.putStringWithoutLengthAscii(index, "BID");
         }
         if (value == 'A') {
-            return "ASK";
+            return index + out.putStringWithoutLengthAscii(index, "ASK");
         }
-        return Long.toString(value);
+        return index + out.putLongAscii(index, value);
     }
 }
