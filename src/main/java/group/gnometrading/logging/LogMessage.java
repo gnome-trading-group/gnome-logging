@@ -65,6 +65,11 @@ public enum LogMessage {
             LogArg.number("listing"),
             LogArg.code("cause", "STALE_RISK", "KILLED", "LATCHED", "UNGUARDED")),
     /**
+     * A listing's book is flagged bad data, so the OMS refuses new orders on it until a good book arrives. Logged when
+     * a strategy's orders on the listing start being refused, not for every order refused after that.
+     */
+    ORDER_REJECTED_MARKET_DATA_BAD(LogArg.number("clientOid"), LogArg.number("strategy"), LogArg.number("listing")),
+    /**
      * A live session lacks a required risk policy on a listing, so nothing may trade until one is added. Logged once
      * per policy change, naming the first gap found.
      */
